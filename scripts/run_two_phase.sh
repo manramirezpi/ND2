@@ -2,6 +2,7 @@
 
 export CUDA_VISIBLE_DEVICES=0,1,2,3
 export NCS22_NJOBS=32  # 占用 32 个核
+export PYTHONPATH=.
 
 # 参数网格
 repeat=1
@@ -23,7 +24,7 @@ for repeat_index in $(seq 1 $repeat); do
     for SNR in "${SNRs[@]}"; do
         wait_for_jobs
         echo "Running SNR=${SNR}"
-        python baseline_NCS22.py --data ./data/synthetic/KUR.json --vars x omega \
+        python ./scripts/run_two_phase.py --data ./data/synthetic/KUR.json --vars x omega \
             --library Polynomial Trigonometric Exponential Fractional CoupledPolynomial CoupledTrigonometric CoupledExponential CoupledFractional \
             --name "Kuramoto_SNR${SNR}" --obs_noise_SNR $SNR &
     done
@@ -31,7 +32,7 @@ for repeat_index in $(seq 1 $repeat); do
     for spurious_link_ratio in "${spurious_link_ratios[@]}"; do
         wait_for_jobs
         echo "Running spurious_link_ratio=${spurious_link_ratio}"
-        python baseline_NCS22.py --data ./data/synthetic/KUR.json --vars x omega \
+        python ./scripts/run_two_phase.py --data ./data/synthetic/KUR.json --vars x omega \
             --library Polynomial Trigonometric Exponential Fractional CoupledPolynomial CoupledTrigonometric CoupledExponential CoupledFractional \
             --name "Kuramoto_spurious_link_ratio${spurious_link_ratio}" --spurious_link_ratio $spurious_link_ratio &
     done
@@ -39,7 +40,7 @@ for repeat_index in $(seq 1 $repeat); do
     for missing_link_ratio in "${missing_link_ratios[@]}"; do
         wait_for_jobs
         echo "Running missing_link_ratio=${missing_link_ratio}"
-        python baseline_NCS22.py --data ./data/synthetic/KUR.json --vars x omega \
+        python ./scripts/run_two_phase.py --data ./data/synthetic/KUR.json --vars x omega \
             --library Polynomial Trigonometric Exponential Fractional CoupledPolynomial CoupledTrigonometric CoupledExponential CoupledFractional \
             --name "Kuramoto_missing_link_ratio${missing_link_ratio}" --missing_link_ratio $missing_link_ratio &
     done
@@ -47,21 +48,21 @@ for repeat_index in $(seq 1 $repeat); do
     for SNR in "${SNRs[@]}"; do
         wait_for_jobs
         echo "Running SNR=${SNR}"
-        python baseline_NCS22.py --data ./data/synthetic/KUR.json --vars x omega \
+        python ./scripts/run_two_phase.py --data ./data/synthetic/KUR.json --vars x omega \
             --name "Kuramoto_SNR${SNR}" --obs_noise_SNR $SNR &
     done
 
     for spurious_link_ratio in "${spurious_link_ratios[@]}"; do
         wait_for_jobs
         echo "Running spurious_link_ratio=${spurious_link_ratio}"
-        python baseline_NCS22.py --data ./data/synthetic/KUR.json --vars x omega \
+        python ./scripts/run_two_phase.py --data ./data/synthetic/KUR.json --vars x omega \
             --name "Kuramoto_spurious_link_ratio${spurious_link_ratio}" --spurious_link_ratio $spurious_link_ratio &
     done
 
     for missing_link_ratio in "${missing_link_ratios[@]}"; do
         wait_for_jobs
         echo "Running missing_link_ratio=${missing_link_ratio}"
-        python baseline_NCS22.py --data ./data/synthetic/KUR.json --vars x omega \
+        python ./scripts/run_two_phase.py --data ./data/synthetic/KUR.json --vars x omega \
             --name "Kuramoto_missing_link_ratio${missing_link_ratio}" --missing_link_ratio $missing_link_ratio &
     done
 done
