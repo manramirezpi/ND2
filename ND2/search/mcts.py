@@ -41,7 +41,7 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
                  select_tempreture:float=0.0,
                  beam_size:int=10,
                  lambda_rollout:float=0.5,
-                 max_token_num:int=40,
+                 max_token_num:int=30,
                  max_coeff_num:int=5,
                  random_state:int=0,
                  c_puct:float=5.0,
@@ -162,10 +162,10 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
                     'Best-RMSE': f'{self.best_metric["RMSE"]:.4f}',
                     'Best-R2': f'{self.best_metric["R2"]:.4f}',
                     'Best-Complexity': f'{self.best_metric["complexity"]}',
-                    'Best-Equation': GDExpr.prefix2str(self.best_model),
+                    'Best-Equation': GDExpr.prefix2str(self.best_model) if len(self.best_model) else 'None',
                     'Search-Speed': f'{self.episode_timer.pop():.2f} episode/s, {self.state_timer.pop():.2f} expanded node/s, {self.eq_timer.pop():.2f} eq/s',
                     # **self.best_metric,
-                    # 'Time Usage': self.named_timer.pop(),
+                    'Time Usage': self.named_timer.pop(),
                     # 'Current-Equation': GDExpr.prefix2str(states_to_expand[0]) if states_to_expand else 'None',
                 }
                 logger.info(' | '.join(f'\033[4m{k}\033[0m:{v}' for k, v in log.items()))
@@ -429,7 +429,7 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
                 if prefix_with_coef is None: continue
                 if rewards[idx] <= self.best_metric['reward']: continue
                 # Update the best result
-                self.best_metric = dict(reward=rewards[idx], equation=GDExpr.prefix2str(prefix_with_coef)) | self.rewarder.evaluate(prefix_with_coef, {})
+                self.best_metric = dict(reward=rewards[idx], equation=GDExpr.prefix2str(prefix_with_coef), time=time.time()-self.start_time) | self.rewarder.evaluate(prefix_with_coef, {})
                 self.best_model = prefix_with_coef
                 log = self.best_metric
                 logger.note('Update best result: ' + ' | '.join(f'\033[4m{k}\033[0m:{v}' for k, v in log.items()))
