@@ -59,7 +59,7 @@ class Encoder(nn.Module):
         - G: (E, 2) (type=int64)
         - A: (V, V) (type=int64)
         - root_type: 'node' or 'edge'
-        - mask: (E,) or (V,), only smaple those mask=True
+        - mask: (N, V or E), only smaple those mask=True
 
         Output:
         - out: (max_sample_num, d_emb)
@@ -79,8 +79,9 @@ class Encoder(nn.Module):
             v_emb, e_emb = self.GNN(v_emb, e_emb, G, A) # (N, V, d_emb), (N, E, d_emb)
         data_emb = v_emb if root_type == 'node' else e_emb # (N, V/E, d_emb)
         if mask is not None:
-            data_emb = data_emb[:, mask, :]
-        data_emb = data_emb.flatten(0, 1) # (N * V/E, d_emb)
+            data_emb = data_emb[mask, :] # (subset of {N * V/E}, d_emb)
+        else:
+            data_emb = data_emb.flatten(0, 1) # (N * V/E, d_emb)
         if data_emb.shape[0] > self.max_sample_num:
             data_emb = data_emb[torch.randperm(data_emb.shape[0])[:self.max_sample_num]] # (N_max, d_emb)
         data_emb = self.Transformer(data_emb)
@@ -265,6 +266,7 @@ class NDformer(nn.Module):
                 v = v[sample_idx]
                 e = e[sample_idx]
                 N = n
+                if mask is not None: mask = mask[sample_idx]
 
         v_bits = torch.from_numpy(GDExpr.parse_float(v)).to(self.device, torch.float32) # (N, V, 1 + d_v, 16)
         e_bits = torch.from_numpy(GDExpr.parse_float(e)).to(self.device, torch.float32) # (N, E, 1 + d_e, 16)
@@ -312,6 +314,7 @@ class NDformer(nn.Module):
         - G: (E, 2) (int)
         - Y: (N, V or E)
         - root_type: 'node' or 'edge'
+        - mask: (N, V or E)
         """
         V = A.shape[0]
         E = G.shape[0]

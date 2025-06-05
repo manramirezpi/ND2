@@ -26,8 +26,7 @@ def main(args):
     # %% Load Data & Init Model
     data = json.load(open(args.data, 'r'))
     for k, v in data.items():
-        data[k] = np.array(v).astype(float)
-        print(k, data[k].dtype)
+        data[k] = np.array(v)
     data['A'] = data['A'].astype(int)
     data['G'] = data['G'].astype(int) # G = np.stack(np.nonzero(A), axis=-1) can be obtained from A
 
