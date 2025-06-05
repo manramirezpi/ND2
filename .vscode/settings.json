@@ -1,0 +1,8 @@
+{
+    // 在 terminal 中执行 ./script/xxx.py 时相当于执行 ./xxx.py
+    "terminal.integrated.env.linux": { "PYTHONPATH": "." },
+    "terminal.integrated.env.osx": { "PYTHONPATH": "." },
+    "terminal.integrated.env.windows": { "PYTHONPATH": "." },
+    // 在 Jupyter 中运行 ./script/xxx.ipynb 时相当于运行 ./xxx.ipynb
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+}
