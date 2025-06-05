@@ -73,7 +73,7 @@ def main(args):
 
     # %% Search
     try:
-        est.fit(['node']) # Search for formula with form of "F + Aggr(G)"
+        est.fit(['node'])
     except KeyboardInterrupt as e: 
         logger.info(f'Interrupted manually.')
     except Exception:
@@ -82,9 +82,8 @@ def main(args):
         logger.note(f'Search finished. Discovered model: {GDExpr.prefix2str(est.best_model)}')
         logger.note(' | '.join(f'\033[4m{k}\033[0m:{v}' for k, v in est.best_metric.items()))
 
-        save_path = f'./result/search.csv'
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        with open(save_path, 'a') as f:
+        os.makedirs(os.path.dirname(args.save_path), exist_ok=True)
+        with open(args.save_path, 'a') as f:
             json.dump(dict(
                 host=gethostname(),
                 name=args.name,
@@ -105,6 +104,7 @@ if __name__ == '__main__':
     parser.add_argument('--ndformer_path', type=str, default='./weights/checkpoint.pth')
     parser.add_argument('--vars', type=str, nargs='*', default=['x', 'omega'])
     parser.add_argument('--target_var', type=str, default='dx')
+    parser.add_argument('--save_path', type=str, default='./result/search.csv')
     args, unknown = parser.parse_known_args()
     if unknown: 
         warnings.warn(f'Unknown args: {unknown}')
