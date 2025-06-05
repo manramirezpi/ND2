@@ -172,7 +172,7 @@ def main(args):
                 f'R2: {result["R2"]:.4f}, '
                 f'ACC2: {result["ACC2"]:.4f}, ACC3: {result["ACC3"]:.4f}, ACC4: {result["ACC4"]:.4f}')
     
-    with open('./result/baseline_NCS22.jsonl', 'a') as f:
+    with open(args.save_path, 'a') as f:
         json.dump(dict(
             host=socket.gethostname(),
             name=args.name, 
@@ -207,8 +207,8 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = ArgumentParser(description="Run NCS22 baseline experiment")
-    parser.add_argument('--name', type=str, default='NCS22', help='Experiment name for logging')
+    parser = ArgumentParser(description="Run Two-Phase baseline experiment")
+    parser.add_argument('--name', type=str, default=f'TwoPhase_{time.strftime("%Y%m%d_%H%M%S")}', help='Experiment name for logging')
     parser.add_argument('--data', type=str, default='./data/synthetic/KUR.json', help='Path to the dataset file')
     parser.add_argument('--vars', type=str, nargs='*', default=['x', 'omega'], help='List of variable names to be used in the model')
     parser.add_argument('--target_var', type=str, default='dx', help='Target variable for the model')
@@ -235,10 +235,12 @@ if __name__ == '__main__':
     parser.add_argument('--obs_noise_SNR', type=float, default=None, help='Signal-to-Noise Ratio for observation noise.')
     parser.add_argument('--missing_link_ratio', type=float, default=None, help='Fraction of missing links in the network.')
     parser.add_argument('--spurious_link_ratio', type=float, default=None, help='Fraction of spurious links in the network.')
+    parser.add_argument('--save_path', type=str, default='./result/baseline_TwoPhase.jsonl')
+    
     args, unknown = parser.parse_known_args()
     if unknown: 
         warnings.warn(f'Unknown args: {unknown}')
-    init_logger(args.name, f'./log/search/{args.name}/info.log', root_name='ND2', info_level=args.info_level)
+    init_logger(args.name, f'./log/baseline/{args.name}/info.log', root_name='ND2', info_level=args.info_level)
     setproctitle(f'{args.name}@ZihanYu')
     if args.seed is None: 
         args.seed = np.random.randint(0, 32768)
