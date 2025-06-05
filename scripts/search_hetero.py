@@ -42,8 +42,8 @@ def main(args):
         Y=data[args.target_var],
         mask=mask,
     )
-    print(rewarder.evaluate(['add', 'omega', 'aggr', 'sin', 'sub', 'sour', 'x', 'targ', 'x']))
-    print(rewarder.evaluate(['sub', 'aggr', 'sour', 'regular', 'x', '2', 'x']))
+    # print(rewarder.evaluate(['add', 'omega', 'aggr', 'sin', 'sub', 'sour', 'x', 'targ', 'x']))
+    # print(rewarder.evaluate(['sub', 'aggr', 'sour', 'regular', 'x', '2', 'x']))
     
     # init NDformer
     ndformer = NDformer(device=args.device)

@@ -175,7 +175,7 @@ def main(args):
     )
 
     # init NDformer
-    ndformer = NDformer(device=args.device, max_sample_num=300)
+    ndformer = NDformer(device=args.device)
     ndformer.load(args.ndformer_path, weights_only=False)
     ndformer.eval()
     ndformer.set_data(
@@ -195,9 +195,9 @@ def main(args):
         ndformer=ndformer,
         vars_node=args.vars,
         vars_edge=[],
-        binary=['add', 'sub'],
-        unary=['sin', 'aggr', 'sour', 'targ'],
-        constant=[],
+        # binary=['add', 'sub'],
+        # unary=['sin', 'aggr', 'sour', 'targ'],
+        # constant=[],
         log_per_episode=10,
         log_per_second=None,
         beam_size=10,
@@ -207,9 +207,7 @@ def main(args):
 
     # %% Search
     try:
-        est.fit(['add', 'node', 'aggr', 'edge'], # Search for formula with form of "F + Aggr(G)"
-                # early_stop=None
-               ) 
+        est.fit(['add', 'node', 'aggr', 'edge']) # Search for formula with form of "F + Aggr(G)"
     except KeyboardInterrupt as e: 
         logger.info(f'Interrupted manually.')
     except Exception:
@@ -254,7 +252,7 @@ if __name__ == '__main__':
         args.seed = np.random.randint(0, 32768)
     seed_all(args.seed)
     if args.device == 'auto': 
-        args.device = AutoGPU().choice_gpu(3000, interval=15, force=False)
+        args.device = AutoGPU().choice_gpu(3500, interval=15, force=True)
     logger.info(f'Args: {args}')
 
     main(args)
