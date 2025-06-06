@@ -32,6 +32,7 @@ np.seterr(divide='ignore')
 class Symbol:
     n_operands = None
     def __init__(self, *operands):
+        raise DeprecationWarning('This class has been deprecated, please use ND2.Symbol instead')
         self.parent = None
         self.child_idx = None
 

@@ -6,18 +6,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from typing import List, Dict, Tuple, Union, Literal
 from .utils import GNN, PositionalEncoding
-from ..utils import NamedTimer
 from ..GDExpr import GDExpr
 import warnings
 
-timer = NamedTimer()
 
 # See https://github.com/pytorch/pytorch/issues/100469
 warnings.filterwarnings("ignore", message="Converting mask without torch.bool dtype to bool; this will negatively affect performance. Prefer to use a boolean mask directly.")
-
 logger = logging.getLogger('ND2.Model')
 
-DEBUG_SPLIT_FLAG = '--split' in sys.argv
 
 class Encoder(nn.Module):
     def __init__(self, d_emb, dropout, d_data_feat, n_node_vars, n_edge_vars,
@@ -352,15 +348,12 @@ class NDformer(nn.Module):
         self.eval()
         with torch.no_grad():
             if not hasattr(self, 'var_dict'): raise ValueError('Please call .set_data() first!')
-            timer.add('drop')
             
             prefixes = [[self.var_map.get(token, token) for token in prefix] for prefix in prefixes]
-            timer.add('map')
 
             if not self.cache_data_emb:
                 self.data_emb = self.encode(self.root_type, self.var_dict)
             data_emb = self.data_emb.to(self.device)
-            timer.add('encode')
 
             expr_ids = [torch.from_numpy(GDExpr.vectorize(['sos', self.root_type, *prefix, 'eos'])) for prefix in prefixes]
             expr_ids = torch.nn.utils.rnn.pad_sequence(expr_ids, batch_first=True, padding_value=GDExpr.pad_id)
@@ -373,20 +366,16 @@ class NDformer(nn.Module):
             types = [torch.from_numpy(GDExpr.vectorize(['sos', self.root_type, *GDExpr.analysis_type(prefix, self.root_type), 'eos'])) for prefix in prefixes]
             types = torch.nn.utils.rnn.pad_sequence(types, batch_first=True, padding_value=GDExpr.pad_id)
             types = types.to(self.device)
-            timer.add('embed')
 
             with torch.no_grad():
                 _, policy, _ = self.decoder(data_emb, expr_ids, parents, types)
-            timer.add('forward')
             if actions is not None:
                 policy = policy[:, GDExpr.vectorize([self.var_map.get(a, a) for a in actions])]
             if mask is not None:
                 mask = torch.from_numpy(np.stack(mask, axis=0)).to(self.device)
                 policy.masked_fill_(~mask, -np.inf)
             policy = policy.softmax(-1).cpu().numpy()
-            timer.add('post')
 
-            if timer.total() > 10: logger.debug(timer.pop())
         return policy
 
     def forward(self, prefixes:List[List[str]], root_type:str, 

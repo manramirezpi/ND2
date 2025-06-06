@@ -5,4 +5,9 @@
     "terminal.integrated.env.windows": { "PYTHONPATH": "." },
     // 在 Jupyter 中运行 ./script/xxx.ipynb 时相当于运行 ./xxx.ipynb
     "jupyter.notebookFileRoot": "${workspaceFolder}",
+
+    // PyTest 测试脚本放在 ./tests/ 目录下，不使用 Unitest
+    "python.testing.pytestArgs": [ "tests" ],
+    "python.testing.pytestEnabled": true,
+    "python.testing.unittestEnabled": false,
 }
