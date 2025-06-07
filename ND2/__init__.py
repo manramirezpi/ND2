@@ -49,3 +49,5 @@ from .core.fit.bfgs_fit import BFGSFit
 
 from .search.gplearn_generator import GPLearnGenerator
 from .search.gp import GP
+from .search.reward_solver import RewardSolver
+from .search.mcts import MCTS

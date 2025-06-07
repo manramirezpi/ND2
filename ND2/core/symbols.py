@@ -18,7 +18,12 @@ Symbol() 的 nettype 会视 operands 而定发生变化
 """
 
 
-class Symbol:
+class SymbolMeta(type):
+    def __repr__(cls):
+        return cls.__name__
+
+
+class Symbol(metaclass=SymbolMeta):
     n_operands = None
 
     def __init__(self, *operands, nettype:Optional[Literal['node', 'edge', 'scalar']]=None):

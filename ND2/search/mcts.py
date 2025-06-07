@@ -23,7 +23,7 @@ logger = logging.getLogger('ND2.MCTS')
 
 class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
     def __init__(self, 
-                 rewarder:RewardSolver=None, 
+                 rewarder:RewardSolver, 
                  ndformer:NDformer=None,
                  vars_node:List[str]=[],
                  vars_edge:List[str]=[],
@@ -39,7 +39,7 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
                  log_per_episode:int=100,
                  log_per_second:int=10,
                  log_detailed_speed:bool=False,
-                 select_tempreture:float=0.0,
+                 tempreture:float=0.0,
                  beam_size:int=10,
                  lambda_rollout:float=0.5,
                  max_token_num:int=30,
@@ -61,7 +61,7 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
         - ndformer: NDformer
         """
         super().__init__()
-        self.rewarder = rewarder or RewardSolver()
+        self.rewarder = rewarder
         self.ndformer = ndformer
         self.vars_node = vars_node
         self.vars_edge = vars_edge
@@ -71,7 +71,7 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
         self.log_per_episode = log_per_episode
         self.log_per_second = log_per_second
         self.log_detailed_speed = log_detailed_speed
-        self.tempreture = select_tempreture
+        self.tempreture = tempreture
         self.beam_size = beam_size
         self.lambda_rollout = lambda_rollout
         self.max_token_num = max_token_num
@@ -87,7 +87,7 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
         self.n_actions = len(self.actions)
 
         if kwargs: logger.warning(f'Unused arguments: {kwargs} in MCTS')
-        assert select_tempreture >= 0
+        assert tempreture >= 0
         assert beam_size >= 1
         assert 0 <= lambda_rollout <= 1
         assert len(set(self.actions)) == len(self.actions)

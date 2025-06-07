@@ -61,6 +61,7 @@ class GP(BaseEstimator, RegressorMixin):
                  n_jobs:int=None,
                  log_per_iter:int=float('inf'),
                  log_per_sec:float=float('inf'),
+                 log_detailed_speed:bool=False,
                  save_path:str=None,
                  random_state:Optional[int]=None, 
                  n_iter=100, 
@@ -89,6 +90,7 @@ class GP(BaseEstimator, RegressorMixin):
             n_jobs: number of jobs for parallel processing (default is None)
             log_per_iter: log every n iterations (default is float('inf'))
             log_per_sec: log every n seconds (default is float('inf'))
+            log_detailed_speed: log the speed of each step (default is False)
             save_path: path to save the logs (default is None)
         """
         if num_nodes is None and edge_list is not None:
@@ -100,9 +102,18 @@ class GP(BaseEstimator, RegressorMixin):
         self.unary = unary
         self.max_params = max_params
         self.elitism_k = elitism_k
+        self.random_state = random_state
         self._rng = default_rng(random_state)
         self.nettype = nettype
         
+        self.p_crossover = p_crossover
+        self.p_subtree_mutation = p_subtree_mutation
+        self.p_hoist_mutation = p_hoist_mutation
+        self.p_point_mutation = p_point_mutation
+        self.p_point_replace = p_point_replace
+        self.const_range = const_range
+        self.depth_range = depth_range
+        self.full_prob = full_prob
 
         self.population_size = population_size
         self.tournament_size = tournament_size
@@ -131,6 +142,7 @@ class GP(BaseEstimator, RegressorMixin):
         self.n_jobs = n_jobs
         self.log_per_iter = log_per_iter
         self.log_per_sec = log_per_sec
+        self.log_detailed_speed = log_detailed_speed
         self.records = []
         self.logger = logging.getLogger(f'ND2.{self.__class__.__name__}')
         self.speed_timer = Timer()
@@ -192,8 +204,9 @@ class GP(BaseEstimator, RegressorMixin):
                 log['MSE'] = record['mse']
                 log['R2'] = record['r2']
                 log['Best equation'] = record['eqtree']
-                log['Speed'] = str(self.speed_timer)
-                log['Time'] = str(self.named_timer)
+                if self.log_detailed_speed:
+                    log['Speed'] = str(self.speed_timer)
+                    log['Time'] = str(self.named_timer)
                 log['Population size'] = record['population_size']
                 self.logger.info(' | '.join(f'\033[4m{k}\033[0m: {v}' for k, v in log.items()))
                 self.named_timer.clear()
@@ -223,7 +236,7 @@ class GP(BaseEstimator, RegressorMixin):
         if isinstance(X, np.ndarray):
             X = {f'x_{i+1}': X[:, i] for i in range(X.shape[1])}
         elif isinstance(X, pd.DataFrame):
-            X = vars(X)
+            X = {col: X[col].values for col in X.columns}
         elif isinstance(X, dict):
             pass
         else:
