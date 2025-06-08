@@ -167,3 +167,8 @@ data/synthetic/*
 *.bak.py
 weights/*.pth
 
+/benchmark/
+/data/
+/playground/
+/result/
+/.vscode/

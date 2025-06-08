@@ -32,6 +32,7 @@ np.seterr(divide='ignore')
 class Symbol:
     n_operands = None
     def __init__(self, *operands):
+        raise DeprecationWarning('This class has been deprecated, please use ND2.Symbol instead')
         self.parent = None
         self.child_idx = None
 
@@ -612,11 +613,13 @@ class Targ(Symbol):
         A, G = kwargs['A'], kwargs['G'] # (V, V), (E, 2)
         V, E = A.shape[0], G.shape[0]
         if isinstance(x, numbers.Number) or x.size == 1:
-            x = np.full((V,), x)
-        elif self.operands[0].nettype == 'scalar': 
+            return x # (1,) -> (1,)
+            # x = np.full((V,), x)
+        elif self.operands[0].nettype == 'scalar' or x.shape[-1] == 1:
             if x.shape[-1] != 1: x = x[..., np.newaxis]
-            x = np.repeat(x, V, axis=-1)
-        return x[..., G[:, 1]] # (*, V) -> (*, E)
+            return x
+        else:
+            return x[..., G[:, 1]] # (*, V) -> (*, E)
 
 
 class Aggr(Symbol):
