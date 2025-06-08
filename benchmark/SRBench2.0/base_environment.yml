@@ -1,0 +1,16 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - scikit-learn 
+  - pandas 
+  - numpy
+  - pytest
+  - sympy
+  - pyyaml
+  - pip 
+  - pip:
+    - pmlb @ git+https://github.com/EpistasisLab/pmlb
+    - pytest-order
+    - eco2ai
+    - tabulate

@@ -1,0 +1,12 @@
+name: srbench-afp
+channels:
+    - conda-forge
+dependencies:
+    - python=3.*
+    - eigen=3.3.7
+    - boost=1.74.0
+    - scikit-learn
+    - pandas=1.1.*
+    - pip
+    - pip:
+        - DistanceClassifier
