@@ -3,7 +3,7 @@ import inspect
 import numpy as np
 import pandas as pd
 import ND2 as nd
-from ND2.utils import seed_all, init_logger, AutoGPU, AttrDict
+from nd2.utils import seed_all, init_logger, AutoGPU, AttrDict
 from sklearn.base import BaseEstimator, RegressorMixin
 from functools import wraps
 

@@ -15,9 +15,9 @@ from argparse import ArgumentParser
 from setproctitle import setproctitle
 from torch.utils.data import TensorDataset, DataLoader
 from torch_geometric.data import Data
-from ND2.utils import init_logger, seed_all, AutoGPU
-from ND2.search.reward_solver import RewardSolver
-from ND2.GDExpr import GDExpr
+from nd2.utils import init_logger, seed_all, AutoGPU
+from nd2.search.reward_solver import RewardSolver
+from nd2.GDExpr import GDExpr
 from typing import Dict, List
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)

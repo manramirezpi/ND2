@@ -8,9 +8,9 @@ import logging
 import warnings
 from setproctitle import setproctitle
 import numpy as np
-from ND2.dataset import Dataset
-from ND2.GDExpr import GDExpr
-from ND2.utils import AttrDict, init_logger, seed_all
+from nd2.dataset import Dataset
+from nd2.GDExpr import GDExpr
+from nd2.utils import AttrDict, init_logger, seed_all
 from baseline.NCS22.code.utils.ElementaryFunctions_Matrix import ElementaryFunctions_Matrix
 from baseline.NCS22.code.utils.TwoPhaseInference import *
 from argparse import ArgumentParser

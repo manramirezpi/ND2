@@ -5,8 +5,8 @@ import pandas as pd
 import ND2 as nd
 from functools import wraps
 from sklearn.base import BaseEstimator, RegressorMixin
-from ND2.GDExpr import GDExpr
-from ND2.utils import init_logger, AutoGPU
+from nd2.GDExpr import GDExpr
+from nd2.utils import init_logger, AutoGPU
 
 
 init_logger('nd2-mcts')

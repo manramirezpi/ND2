@@ -5,11 +5,11 @@ import setproctitle
 import numpy as np
 import torch.utils.data as D
 from argparse import ArgumentParser
-from ND2.dataset import Dataset
-from ND2.model import NDformer
-from ND2.utils import AutoGPU, init_logger, seed_all
-from ND2.model.trainer import Trainer, LossRecord
-from ND2.GDExpr import GDExpr
+from nd2.dataset import Dataset
+from nd2.model import NDformer
+from nd2.utils import AutoGPU, init_logger, seed_all
+from nd2.model.trainer import Trainer, LossRecord
+from nd2.GDExpr import GDExpr
 
 logger = logging.getLogger('ND2.train')
 def handler(signum, frame): raise KeyboardInterrupt    

@@ -3,9 +3,9 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ND2"
-version = "1.1.0"
-description = "ND2 symbolic regression"
+name = "nd2"
+version = "2.2.0"
+description = "ND2 (Neural Discovery of Network Dynamics) symbolic regression"
 authors = [{name="YuMeow", email="yuzh19@tsinghua.org.cn"}]
 requires-python = ">=3.8"
 dependencies = [
@@ -16,9 +16,17 @@ dependencies = [
   "torch>=1.12",
   "pandas>=2.2",
   "scikit-learn>=1.5",
+  "setproctitle",
+  "matplotlib",
+  "seaborn",
+  "pyyaml",
 ]
 
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-q"
 testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nd2*"]

@@ -8,8 +8,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from mpl_toolkits.mplot3d import Axes3D
-from ND2.GDExpr import GDExpr
-from ND2.utils import AttrDict
+from nd2.GDExpr import GDExpr
+from nd2.utils import AttrDict
 from argparse import ArgumentParser
 
 def plot_first_N(data, ax, N, label, cmap):
@@ -182,7 +182,7 @@ def main(args):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--conf', type=str, default='./config/synthetic_LFR.yaml')
+    parser.add_argument('--conf', type=str, default='./config/synthetic.yaml')
     parser.add_argument('--save', type=str, default='./data/synthetic/')
     parser.add_argument('--plot', type=str, default='./plot/synthetic/')
     parser.add_argument('--seed', type=int, default=42)

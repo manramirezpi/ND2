@@ -1,7 +1,7 @@
 import ND2 as nd
 import numpy as np
 import pandas as pd
-from ND2.utils import init_logger
+from nd2.utils import init_logger
 
 init_logger('nd2-gp')
 

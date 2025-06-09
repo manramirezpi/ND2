@@ -212,7 +212,7 @@ class NDformer(nn.Module):
             # 这是将 src 重命名为 ND2 后导致的问题
             from io import BytesIO
             content = open(path, 'rb').read()
-            content = content.replace(b'src', b'ND2')
+            content = content.replace(b'src', b'ND2').replace(b'ND2', b'nd2')
             ckpt = torch.load(BytesIO(content), map_location=self.device, weights_only=weights_only)
 
         try:

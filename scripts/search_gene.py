@@ -10,11 +10,11 @@ import pandas as pd
 from socket import gethostname
 from argparse import ArgumentParser
 from setproctitle import setproctitle
-from ND2.model import NDformer
-from ND2.utils import init_logger, AutoGPU, seed_all
-from ND2.search import MCTS
-from ND2.GDExpr import GDExpr
-from ND2.search.reward_solver import RewardSolver
+from nd2.model import NDformer
+from nd2.utils import init_logger, AutoGPU, seed_all
+from nd2.search import MCTS
+from nd2.GDExpr import GDExpr
+from nd2.search.reward_solver import RewardSolver
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 def handler(signum, frame): raise KeyboardInterrupt    

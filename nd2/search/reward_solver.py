@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 from typing import Tuple, List, Dict, Union
 from scipy.optimize import minimize
-from ND2.GDExpr import GDExpr
+from ..GDExpr import GDExpr
 
 
 logger = logging.getLogger('ND2.RewardSolver')
