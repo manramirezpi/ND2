@@ -46,6 +46,7 @@ from .core.calc.numpy_calc import NumpyCalc
 from .core.calc.torch_calc import TorchCalc
 from .core.fit.fold_constant import FoldConstant
 from .core.fit.bfgs_fit import BFGSFit
+from .core.simplify.split_by_add import SplitByAdd
 
 from .search.gplearn_generator import GPLearnGenerator
 from .search.gp import GP

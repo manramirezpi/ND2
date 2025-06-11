@@ -170,6 +170,62 @@ class Symbol(metaclass=SymbolMeta):
         from .calc.torch_calc import TorchCalc
         return TorchCalc()(self, vars=vars, edge_list=edge_list, num_nodes=num_nodes, use_eps=use_eps, device=device)
 
+    def split_by_add(self,
+                split_by_sub: bool = False,
+                expand_mul: bool = False,
+                expand_div: bool = False,
+                expand_aggr: bool = False,
+                expand_rgga: bool = False,
+                expand_sour: bool = False,
+                expand_targ: bool = False,
+                remove_coefficients: bool = False,
+                merge_bias: bool = False) -> list['Symbol']:
+        """Split the node by addition, returning a list of symbols.
+        Args:
+        - node: Symbol, the node to split
+        - split_by_sub: bool, whether to split by Sub nodes
+        - expand_mul: bool, whether to expand Mul nodes
+        - expand_div: bool, whether to expand Div nodes
+        - expand_aggr: bool, whether to expand Aggr nodes
+        - expand_rgga: bool, whether to expand Rgga nodes
+        - expand_sour: bool, whether to expand Sour nodes
+        - expand_targ: bool, whether to expand Targ nodes
+        - remove_coefficients: bool, whether to remove coefficients from the symbols
+        - merge_bias: bool, whether to merge bias terms
+        """
+        from .simplify.split_by_add import SplitByAdd
+        return SplitByAdd()(self, split_by_sub=split_by_sub, expand_mul=expand_mul, expand_div=expand_div,
+                            expand_aggr=expand_aggr, expand_rgga=expand_rgga, expand_sour=expand_sour, expand_targ=expand_targ,
+                            remove_coefficients=remove_coefficients, merge_bias=merge_bias)
+
+    def get_parameters(self, fitable_only:bool=False) -> List[float]:
+        """Get the parameters of the Symbol.
+        Args:
+        - fitable_only: bool, whether to return only the fitable parameters
+        Returns:
+        - List[float], a list of parameters
+        """
+        params = []
+        for op in self.preorder():
+            if isinstance(op, Number) and (not fitable_only or op.fitable):
+                params.append(op.value)
+        return params
+
+    def set_parameters(self, params:List[float], fitable_only:bool=False):
+        """Set the parameters of the Symbol.
+        Args:
+        - params: List[float], a list of parameters
+        - fitable_only: bool, whether to set only the fitable parameters
+        """
+        if len(params) != len(self.get_parameters(fitable_only=fitable_only)):
+            raise ValueError(f"params length {len(params)} does not match the number of parameters {len(self.get_parameters(fitable_only=fitable_only))}")
+        
+        p = 0
+        for op in self.preorder():
+            if isinstance(op, Number) and (not fitable_only or op.fitable):
+                op.value = params[p]
+                p += 1
+
     @classmethod
     def create_instance(cls, *operands):
         return cls(*operands)
