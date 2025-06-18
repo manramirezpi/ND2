@@ -4,44 +4,61 @@ Not required for core ND2 functionalities.
 """
 import time
 
-def time_str(seconds):
+def time_str(seconds, unit='iter'):
     """Convert seconds to a human-readable string."""
     if seconds < 1e-5:
-        return f'{seconds * 1e6:.1f}us'
+        return f'{seconds * 1e6:.1f}us/{unit}'
     elif seconds < 1e-4:
-        return f'{seconds * 1e6:.0f}us'
+        return f'{seconds * 1e6:.0f}us/{unit}'
     elif seconds < 1e-3:
-        return f'{seconds * 1e6:.0f}us'
+        return f'{seconds * 1e6:.0f}us/{unit}'
     elif seconds < 1e-2:
-        return f'{seconds * 1e3:.1f}ms'
+        return f'{seconds * 1e3:.1f}ms/{unit}'
     elif seconds < 1e-1:
-        return f'{seconds * 1e3:.0f}ms'
+        return f'{seconds * 1e3:.0f}ms/{unit}'
     elif seconds < 1:
-        return f'{seconds * 1e3:.0f}ms'
+        return f'{seconds * 1e3:.0f}ms/{unit}'
     elif seconds < 10:
-        return f'{seconds:.1f}s'
+        return f'{seconds:.1f}s/{unit}'
     elif seconds < 60:
-        return f'{seconds:.0f}s'
+        return f'{seconds:.0f}s/{unit}'
     elif seconds < 600:
-        return f'{seconds / 60:.1f}min'
+        return f'{seconds / 60:.1f}min/{unit}'
     elif seconds < 3600:
-        return f'{seconds / 60:.0f}min'
+        return f'{seconds / 60:.0f}min/{unit}'
     elif seconds < 36000:
-        return f'{seconds / 3600:.1f}h'
+        return f'{seconds / 3600:.1f}h/{unit}'
     else:
-        return f'{seconds / 3600:.0f}h'
+        return f'{seconds / 3600:.0f}h/{unit}'
+
+def speed_str(iter_per_second, unit='iter'):
+    if iter_per_second > 1e6:
+        return f'{iter_per_second / 1e6:.1f}M{unit}/s'
+    elif iter_per_second > 1e3:
+        return f'{iter_per_second / 1e3:.1f}K{unit}/s'
+    elif iter_per_second > 1:
+        return f'{iter_per_second:.1f}{unit}/s'
+    elif iter_per_second > 1 / 60:
+        return f'{iter_per_second * 60:.1f}{unit}/min'
+    elif iter_per_second > 1 / 3600:
+        return f'{iter_per_second * 3600:.1f}{unit}/h'
+    else:
+        return f'{iter_per_second * 86400:.1f}{unit}/day'
 
 class Timer:
-    def __init__(self, unit='iter'):
+    def __init__(self, unit='iter', unit_time=False):
         self.count = 0
         self.time = 0
         self.unit = unit
+        self.unit_time = unit_time
         self.start_time = time.time()
     
     def __str__(self):
         speed = self.speed()
-        speed_str = f'{time_str(1/speed)}/{self.unit}'
-        return speed_str
+        if self.unit_time:
+            return speed_str(speed, self.unit)
+        else:
+            return time_str(1/speed, self.unit)
 
     def add(self, n=1):
         self.count += n

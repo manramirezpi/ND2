@@ -39,7 +39,7 @@ class LogFormatter(logging.Formatter):
         if self.colorful:
             return self.color_dict.get(record.levelname, '{}').format(prefix) + " " + message
         else:
-            return prefix + " " + re.sub(r'\033\[\d+;?\d*m', '', message)
+            return prefix + " " + re.sub(r'\033\[[\d;]+m', '', message)
 
 
 def init_logger(exp_name=None, log_file=None, root_name='ND2', info_level='info'):
@@ -66,7 +66,7 @@ def init_logger(exp_name=None, log_file=None, root_name='ND2', info_level='info'
 
     if log_file is not None:
         os.makedirs(os.path.dirname(log_file), exist_ok=True)
-        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=50*1024*1024, backupCount=100)
+        file_handler = RotatingFileHandler(log_file, mode='a', maxBytes=50*1024*1024, backupCount=100, encoding='utf-8')
         file_handler.setLevel(logging.DEBUG)
         file_handler.setFormatter(LogFormatter(exp_name, colorful=False, start_time=start_time))
         logger.addHandler(file_handler)
