@@ -17,14 +17,14 @@
 
 ---
 
-> [!TIP]
+<!-- > [!TIP]
 > **🚀 News: Introducing `nd2py`!**
 > 
 > We are excited to announce that we have completely refactored the core algorithm and released an **out-of-the-box** Python library: **[nd2py](https://github.com/yuzhTHU/nd2py)**. 
 > 
 > `nd2py` provides a significantly more **user-friendly interface** and **optimized implementation**, making it much easier to apply this method to your own data. While you can still use the current repository to reproduce the experiments in our *Nature Computational Science* paper, we highly recommend checking out **[nd2py](https://github.com/yuzhTHU/nd2py)** for general usage.
 > 
-> *Note: Please be aware that `nd2py` adopts a new data format standard. Refer to its documentation for details.*
+> *Note: Please be aware that `nd2py` adopts a new data format standard. Refer to its documentation for details.* -->
 
 ## Introduction
 
@@ -133,7 +133,7 @@ by mapping $\rho(\cdot) \rightarrow \sum_j A_{ij}(\cdot)$, $\phi_s(\cdot) \right
 
 **A:** You should save your data in a JSON file with the following structure:
 
-```json
+```
 {
     // A_ij is the link relationship (1-link, 0-no link) between node i and node j.
     "A": [[A_11, A_12, ..., A_1n], ..., [A_n1, A_n2, ..., A_nn]],
