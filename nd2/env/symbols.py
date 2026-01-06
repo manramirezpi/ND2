@@ -5,13 +5,14 @@ from typing import List, Dict, Literal, Union
 from functools import reduce
 from scipy.optimize import minimize
 import logging
-from numba import njit, prange
+# from numba import njit, prange
 
-@njit(parallel=True)
+# @njit(parallel=True)
 def scatter_add_2D(x: np.ndarray, index: np.ndarray, y: np.ndarray) -> np.ndarray:
     # 假设 x, y 都是 2D，沿第 1 维索引累加
     N, E = x.shape
-    for n in prange(N):
+    # for n in prange(N):
+    for n in range(N):
         for e in range(E):
             v = index[e]
             y[n, v] += x[n, e]
@@ -32,7 +33,8 @@ np.seterr(divide='ignore')
 class Symbol:
     n_operands = None
     def __init__(self, *operands):
-        raise DeprecationWarning('This class has been deprecated, please use ND2.Symbol instead')
+        # raise DeprecationWarning('This class has been deprecated, please use ND2.Symbol instead')
+        Warning('This class has been deprecated, please use ND2.Symbol instead')
         self.parent = None
         self.child_idx = None
 
@@ -651,8 +653,12 @@ class Aggr(Symbol):
             y = y * x
             return y
         else:
+            # y = np.zeros((*x.shape[:-1], V))
+            # scatter_add_2D(x, G[:, 1], y)
+            # return y
             y = np.zeros((*x.shape[:-1], V))
-            scatter_add_2D(x, G[:, 1], y)
+            for k, j in enumerate(G[:, 1]):
+                y[..., j] += x[..., k]
             return y
 
 
