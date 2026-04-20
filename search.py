@@ -28,12 +28,12 @@ def main(args):
     for k, v in data.items():
         data[k] = np.array(v)
     data['A'] = data['A'].astype(int)
-    data['G'] = data['G'].astype(int) # G = np.stack(np.nonzero(A), axis=-1) can be obtained from A
+    data['G'] = data['G'].astype(int)
 
     # init Rewarder
     rewarder = RewardSolver(
         Xv={var: data[var] for var in args.vars},
-        Xe={},
+        Xe={var: data[var] for var in args.edge_vars},
         A=data['A'],
         G=data['G'],
         Y=data[args.target_var],
@@ -46,7 +46,7 @@ def main(args):
     ndformer.eval()
     ndformer.set_data(
         Xv={var: data[var] for var in args.vars},
-        Xe={},
+        Xe={var: data[var] for var in args.edge_vars},
         A=data['A'],
         G=data['G'],
         Y=data[args.target_var],
@@ -59,10 +59,7 @@ def main(args):
         rewarder=rewarder,
         ndformer=ndformer,
         vars_node=args.vars,
-        vars_edge=[],
-        # binary=['add', 'sub'],
-        # unary=['sin', 'aggr', 'sour', 'targ'],
-        # constant=[],
+        vars_edge=args.edge_vars,
         log_per_episode=10,
         log_per_second=None,
         beam_size=10,
@@ -72,7 +69,7 @@ def main(args):
 
     # %% Search
     try:
-        est.fit(['node'])
+        est.fit(['node'], max_episodes=args.episodes, time_limit=args.time_limit)
     except KeyboardInterrupt as e: 
         logger.info(f'Interrupted manually.')
     except Exception:
@@ -102,8 +99,12 @@ if __name__ == '__main__':
     parser.add_argument('--info_level', choices=['debug', 'info', 'note', 'warning', 'error', 'critical'], default='info')
     parser.add_argument('--ndformer_path', type=str, default='./weights/checkpoint.pth')
     parser.add_argument('--vars', type=str, nargs='*', default=['x', 'omega'])
+    parser.add_argument('--edge_vars', type=str, nargs='*', default=[])
     parser.add_argument('--target_var', type=str, default='dx')
     parser.add_argument('--save_path', type=str, default='./result/search.csv')
+    parser.add_argument('--episodes', type=int, default=1000000)
+    parser.add_argument('--time_limit', type=int, default=None)
+    
     args, unknown = parser.parse_known_args()
     if unknown: 
         warnings.warn(f'Unknown args: {unknown}')
