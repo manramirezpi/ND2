@@ -1,42 +1,22 @@
 [
   {
     "complexity": 3,
-    "accuracy": -0.01059252188666382,
+    "accuracy": -0.010055065073928837,
     "equation": "aggr(sour(theta))"
   },
   {
+    "complexity": 4,
+    "accuracy": -0.001121292777956695,
+    "equation": "(sigmoid(r_node)*0.1095)"
+  },
+  {
     "complexity": 5,
-    "accuracy": -0.0007434029376947038,
-    "equation": "(theta*(theta*0.0247))"
+    "accuracy": 0.010055065073928726,
+    "equation": "aggr((0.1718+sour(theta)))"
   },
   {
-    "complexity": 6,
-    "accuracy": 0.002700925276568289,
-    "equation": "aggr(((sour(r_node)+(1/4))**2))"
-  },
-  {
-    "complexity": 10,
-    "accuracy": 0.013684366029869222,
-    "equation": "(sin(((theta**2)*0.0001))/((r_node**3)*0.0012))"
-  },
-  {
-    "complexity": 11,
-    "accuracy": 0.15281091588935303,
-    "equation": "(sigmoid((-4.0008*r_node))*aggr((targ((theta**3))+22.4588)))"
-  },
-  {
-    "complexity": 12,
-    "accuracy": 0.1676311073346355,
-    "equation": "(sigmoid((-3.1982*r_node))*aggr(targ((aggr(sour(theta))--17.1857))))"
-  },
-  {
-    "complexity": 15,
-    "accuracy": 0.6117448881498404,
-    "equation": "((-aggr((targ((2.0010*sin((logabs(theta)+1.0475))))+-1.8998)))/(r_node**2))"
-  },
-  {
-    "complexity": 18,
-    "accuracy": 0.6277933297387777,
-    "equation": "(sigmoid((-151.6806+(regular(sin(theta), aggr((-1.0566+targ(r_node))))/0.0036)))*(sin(theta)+4.9942))"
+    "complexity": 9,
+    "accuracy": 0.7218067239183664,
+    "equation": "((aggr((targ(theta)+-1.4126))**2)/(r_node**2))"
   }
 ]
