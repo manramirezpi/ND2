@@ -62,7 +62,7 @@ def main(args):
         vars_edge=args.edge_vars,
         log_per_episode=10,
         log_per_second=None,
-        beam_size=10,
+        beam_size=20,
         use_random_simulate=False,
         max_coeff_num=5,
     )
@@ -75,6 +75,14 @@ def main(args):
     except Exception:
         logger.error(traceback.format_exc())
     finally:
+        # Print full Pareto Front
+        logger.note("\n" + "="*20 + " FRENTE DE PARETO " + "="*20)
+        pareto_candidates = est.Pareto()
+        for cand in pareto_candidates:
+            eq_str = GDExpr.prefix2str(cand['prefix'])
+            logger.note(f"C:{cand['complexity']} | R2:{cand['R2']:.4f} | Eq: {eq_str}")
+        logger.note("="*58 + "\n")
+
         if est.best_model:
             logger.note(f'Search finished. Discovered model: {GDExpr.prefix2str(est.best_model)}')
             logger.note(' | '.join(f'\033[4m{k}\033[0m:{v}' for k, v in est.best_metric.items()))
