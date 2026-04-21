@@ -77,10 +77,10 @@ def main(args):
     finally:
         # Print full Pareto Front
         logger.note("\n" + "="*20 + " FRENTE DE PARETO " + "="*20)
-        pareto_candidates = est.Pareto()
-        for cand in pareto_candidates:
-            eq_str = GDExpr.prefix2str(cand['prefix'])
-            logger.note(f"C:{cand['complexity']} | R2:{cand['R2']:.4f} | Eq: {eq_str}")
+        pareto_candidates = est.Pareto(max_iter=200)
+        for prefix, complexity, accuracy in pareto_candidates:
+            eq_str = GDExpr.prefix2str(prefix)
+            logger.note(f"C:{complexity} | R2:{accuracy:.4f} | Eq: {eq_str}")
         logger.note("="*58 + "\n")
 
         if est.best_model:
