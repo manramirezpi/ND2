@@ -69,14 +69,17 @@ def main(args):
 
     # %% Search
     try:
-        est.fit(['node'], max_episodes=args.episodes, time_limit=args.time_limit)
+        est.fit(['node'], episode_limit=args.episodes, time_limit=args.time_limit)
     except KeyboardInterrupt as e: 
         logger.info(f'Interrupted manually.')
     except Exception:
         logger.error(traceback.format_exc())
     finally:
-        logger.note(f'Search finished. Discovered model: {GDExpr.prefix2str(est.best_model)}')
-        logger.note(' | '.join(f'\033[4m{k}\033[0m:{v}' for k, v in est.best_metric.items()))
+        if est.best_model:
+            logger.note(f'Search finished. Discovered model: {GDExpr.prefix2str(est.best_model)}')
+            logger.note(' | '.join(f'\033[4m{k}\033[0m:{v}' for k, v in est.best_metric.items()))
+        else:
+            logger.warning('Search finished without discovering a valid model.')
 
         os.makedirs(os.path.dirname(args.save_path), exist_ok=True)
         with open(args.save_path, 'a') as f:
