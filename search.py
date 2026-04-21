@@ -62,7 +62,7 @@ def main(args):
         vars_edge=args.edge_vars,
         log_per_episode=10,
         log_per_second=None,
-        beam_size=20,
+        beam_size=args.beam_size,
         use_random_simulate=False,
         max_coeff_num=5,
     )
@@ -114,6 +114,7 @@ if __name__ == '__main__':
     parser.add_argument('--target_var', type=str, default='dx')
     parser.add_argument('--save_path', type=str, default='./result/search.csv')
     parser.add_argument('--episodes', type=int, default=1000000)
+    parser.add_argument('--beam_size', type=int, default=20)
     parser.add_argument('--time_limit', type=int, default=None)
     
     args, unknown = parser.parse_known_args()
