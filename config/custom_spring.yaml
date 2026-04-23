@@ -1,0 +1,28 @@
+COUPLED_SPRING:
+  network:
+    use: ./data/networks/custom_A.csv
+  N: 2000
+  dt: 0.05
+  root_type: node
+  variables:
+    independent:
+      x:
+        type: node
+        initialize: np.random.uniform(-5, 5, (1, V))
+        update: simulation['x'][-1] + simulation['dx'][-1] * dt
+      y:
+        type: node
+        initialize: np.random.uniform(-2, 2, (1, V))
+        update: simulation['y'][-1] + simulation['dy'][-1] * dt
+      k:
+        type: node
+        initialize: np.random.uniform(0.5, 1.5, (1, V))
+        update: simulation['k'][-1]
+    dependent:
+      dx:
+        type: node
+        GD_expr: y
+      dy:
+        type: node
+        GD_expr: -k*x + 0.5*aggr(sour(x, G, A) - targ(x, G, A), G, A) + 0.2*aggr(sour(y, G, A) - targ(y, G, A), G, A)
+  plot: [x]
