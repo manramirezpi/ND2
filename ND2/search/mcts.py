@@ -108,6 +108,62 @@ class MCTS(sklearn.base.BaseEstimator, sklearn.base.RegressorMixin):
         self.eq_timer = AbsTimer(unit='eq')
         self.eq_timer.last = 0
 
+    def inject_seed(self, prefix_str: str, visits: int = 100):
+        """ Inject a manual expression to warm-start MCTS """
+        logger.note(f"Seeding MCTS with: {prefix_str}")
+        try:
+            prefix = GDExpr.str2prefix(prefix_str)
+        except Exception as e:
+            logger.warning(f"Could not parse seed expression: {e}")
+            return
+            
+        def is_float_str(x):
+            try:
+                float(x)
+                return True
+            except ValueError:
+                return False
+
+        target = []
+        for p in prefix:
+            if is_float_str(p) and p not in self.constant:
+                target.append('<C>')
+            else:
+                target.append(p)
+                
+        target_root = 'node'
+        if target and (target[0] in self.vars_edge or target[0] in ['sour', 'targ']): 
+            target_root = 'edge'
+        
+        curr_state = [target_root]
+        route = [(None, curr_state)]
+        
+        for action in target:
+            if action not in self.actions:
+                logger.warning(f"Action {action} not allowed, skipping seed.")
+                return
+            mask = self.get_mask(curr_state)
+            action_idx = self.action2idx[action]
+            if not mask[action_idx]:
+                logger.warning(f"Action {action} invalid at state {curr_state}, skipping seed.")
+                return
+            next_state = self.act(curr_state, action)
+            route.append((action, next_state))
+            curr_state = next_state
+        
+        nodes_to_expand = [s[1] for s in route if tuple(s[1]) not in self.MC_Tree]
+        if nodes_to_expand:
+            self.expand(nodes_to_expand)
+            
+        self.get_rewards([target])
+        reward = self.rewards.get(tuple(target), 0.0)
+        
+        for _ in range(visits):
+            self.backpropagate([route], [reward])
+            
+        logger.note(f"Seed injected successfully! Q-values populated down the branch.")
+
+
     def fit(self, 
             root_prefix:List[str]=['node'], 
             episode_limit:int=1_000_000,

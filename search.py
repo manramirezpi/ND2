@@ -67,6 +67,10 @@ def main(args):
         max_coeff_num=5,
     )
 
+    # seed
+    if args.initial_expression:
+        est.inject_seed(args.initial_expression, visits=100)
+
     # %% Search
     try:
         est.fit(['node'], episode_limit=args.episodes, time_limit=args.time_limit)
@@ -116,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('--episodes', type=int, default=1000000)
     parser.add_argument('--beam_size', type=int, default=20)
     parser.add_argument('--time_limit', type=int, default=None)
+    parser.add_argument('--initial_expression', type=str, default=None, help='Initial symbolic expression to seed MCTS')
     
     args, unknown = parser.parse_known_args()
     if unknown: 
