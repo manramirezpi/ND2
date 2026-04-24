@@ -59,6 +59,60 @@ def generate_monopole(T=500, Q=1.0):
         edge_data=edge_data
     )
 
+def generate_two_monopoles(T=500):
+    """
+    2 Monopolos con cargas Q1, Q2 distintas y distancias d1, d2 al observador.
+    Ley exacta: V = Q1/d1 + Q2/d2
+
+    Grafo (aquí aggr() es no-trivial):
+      Nodo 0: Monopolo_1 (carga Q1)
+      Nodo 1: Monopolo_2 (carga Q2)
+      Nodo 2: Observador (pasivo)
+      Arista 0→2: lleva d1
+      Arista 1→2: lleva d2
+
+    El MCTS debe descubrir: aggr(source(e).Q / edge(e).d)
+    = Q1/d1 + Q2/d2  ← la suma la hace aggr() automáticamente
+    """
+    np.random.seed(42)
+
+    # Variamos Q y d para que el motor vea la dependencia real
+    Q1_vals = np.random.uniform(0.5, 3.0, T)
+    Q2_vals = np.random.uniform(0.5, 3.0, T)
+    d1_vals = np.random.uniform(0.5, 5.0, T)
+    d2_vals = np.random.uniform(0.5, 5.0, T)
+    V_vals  = Q1_vals/d1_vals + Q2_vals/d2_vals   # Ley exacta
+
+    # === Nodo features: shape (T, V=3) ===
+    # Cada fila: [Q_nodo0, Q_nodo1, Q_nodo2]
+    # Nodo 0 = Monopolo_1, Nodo 1 = Monopolo_2, Nodo 2 = Observador (Q=0)
+    Q_node = [[float(q1), float(q2), 0.0]
+              for q1, q2 in zip(Q1_vals, Q2_vals)]
+
+    # === Edge features: shape (T, E=2) ===
+    # Cada fila: [d_arista0, d_arista1] = [d1, d2]
+    d_edge = [[float(d1), float(d2)]
+              for d1, d2 in zip(d1_vals, d2_vals)]
+
+    # === Target: shape (T, V=3) ===
+    # Solo el Observador (nodo 2) tiene target
+    targets = [[0.0, 0.0, float(v)] for v in V_vals]
+
+    data_node = {"Q": Q_node}
+    edge_data = {"d": d_edge}
+
+    save_dataset(
+        data_node, targets,
+        filename="data/two_monopoles.json",
+        A=[[0, 0, 1],   # Monopolo_1 → Observador
+           [0, 0, 1],   # Monopolo_2 → Observador
+           [0, 0, 0]],  # Observador → nadie
+        G=[[0, 2],      # Arista 0: Monopolo_1 → Observador
+           [1, 2]],     # Arista 1: Monopolo_2 → Observador
+        edge_data=edge_data
+    )
+
+
 def generate_toy_math():
     """ Baseline dataset: Target = x^2 + 2x """
     np.random.seed(42)
@@ -103,7 +157,7 @@ def generate_legendre_recurrence():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="toy",
-                        choices=["toy", "harmonic", "legendre", "monopole"])
+                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles"])
     args = parser.parse_args()
     
     if args.dataset == "toy":
@@ -114,3 +168,5 @@ if __name__ == "__main__":
         generate_legendre_recurrence()
     elif args.dataset == "monopole":
         generate_monopole()
+    elif args.dataset == "two_monopoles":
+        generate_two_monopoles()
