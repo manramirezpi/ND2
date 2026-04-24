@@ -19,10 +19,6 @@ ndformer.set_data(
     ...
 )
 ```
-
-**¿Por qué es importante?**
-Nos posibilitó alimentar ecuaciones recursivas. La inteligencia artificial pudo ver por primera vez en "una sola foto" el estado cuántico $L$, junto con su posición espacial y sus derivadas pasadas.
-
 ---
 
 ### 2. Soporte para Relaciones de Distancia Espacial (Aristas)
