@@ -37,10 +37,6 @@ rewarder = RewardSolver(
     ...
 )
 ```
-
-**¿Por qué es importante?**
-Le enseñó al programa el concepto dimensional de "distancia física" separándolo de los datos internos, vital para aislar la regla escalar del electromagnetismo $1/r^{l+1}$.
-
 ---
 
 ### 3. Visibilidad Total de Ecuaciones (Frente de Pareto)
