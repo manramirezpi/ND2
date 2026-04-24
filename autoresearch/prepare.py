@@ -113,6 +113,50 @@ def generate_two_monopoles(T=500):
     )
 
 
+def generate_three_monopoles(T=500):
+    """
+    3 Monopolos con cargas Q1, Q2, Q3 y distancias d1, d2, d3 al observador.
+    Ley exacta: V = Q1/d1 + Q2/d2 + Q3/d3
+
+    Grafo:
+      Nodo 0: Monopolo_1, Nodo 1: Monopolo_2, Nodo 2: Monopolo_3
+      Nodo 3: Observador (pasivo)
+      3 aristas: 0→3, 1→3, 2→3
+
+    No hay restriccion de distancia (ley exacta a cualquier d).
+    Solo evitar d muy pequenos para evitar singularidades numericas.
+    """
+    np.random.seed(42)
+    Q1 = np.random.uniform(0.5, 3.0, T)
+    Q2 = np.random.uniform(0.5, 3.0, T)
+    Q3 = np.random.uniform(0.5, 3.0, T)
+    d1 = np.random.uniform(0.5, 5.0, T)
+    d2 = np.random.uniform(0.5, 5.0, T)
+    d3 = np.random.uniform(0.5, 5.0, T)
+    V  = Q1/d1 + Q2/d2 + Q3/d3
+
+    # Nodo features: shape (T, V=4) — [Q1, Q2, Q3, 0 (observador)]
+    Q_node = [[float(q1), float(q2), float(q3), 0.0]
+              for q1, q2, q3 in zip(Q1, Q2, Q3)]
+
+    # Edge features: shape (T, E=3) — [d1, d2, d3]
+    d_edge = [[float(d1_), float(d2_), float(d3_)]
+              for d1_, d2_, d3_ in zip(d1, d2, d3)]
+
+    # Target: shape (T, V=4) — solo el observador (nodo 3) tiene target
+    targets = [[0.0, 0.0, 0.0, float(v)] for v in V]
+
+    save_dataset(
+        {"Q": Q_node}, targets,
+        filename="data/three_monopoles.json",
+        A=[[0, 0, 0, 1],   # Monopolo_1 → Observador
+           [0, 0, 0, 1],   # Monopolo_2 → Observador
+           [0, 0, 0, 1],   # Monopolo_3 → Observador
+           [0, 0, 0, 0]],  # Observador → nadie
+        G=[[0, 3], [1, 3], [2, 3]],  # 3 aristas → observador
+        edge_data={"d": d_edge}
+    )
+
 def generate_toy_math():
     """ Baseline dataset: Target = x^2 + 2x """
     np.random.seed(42)
@@ -157,7 +201,7 @@ def generate_legendre_recurrence():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="toy",
-                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles"])
+                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", "three_monopoles"])
     args = parser.parse_args()
     
     if args.dataset == "toy":
@@ -170,3 +214,5 @@ if __name__ == "__main__":
         generate_monopole()
     elif args.dataset == "two_monopoles":
         generate_two_monopoles()
+    elif args.dataset == "three_monopoles":
+        generate_three_monopoles()
