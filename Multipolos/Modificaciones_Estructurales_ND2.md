@@ -1,68 +1,107 @@
 # Modificaciones Estructurales a ND2: Adaptación para Descubrimiento Físico y Multipolos Espaciales
 
-A continuación se documentan las **5 modificaciones principales** realizadas al código original de ND2 (`search.py` y dependencias). El objetivo fue transformar un programa diseñado inicialmente para descubrir ecuaciones de series de tiempo, en un sistema más versátil capaz de descubrir leyes de la física en el espacio tridimensional (como el decaimiento de las fuerzas electromagnéticas).
+A continuación se documentan las **5 modificaciones principales** realizadas al código original de ND2 (`search.py` y dependencias). El objetivo fue transformar un programa diseñado inicialmente para descubrir ecuaciones de series de tiempo, en un sistema más versátil capaz de descubrir leyes de la física en el espacio tridimensional (como el decaimiento multipolar).
 
 ---
 
-### 1. Soporte para Múltiples Variables de Entrada
+### 1. Soporte para Múltiples Variables Simultáneas
 
 **Estado Original:**
-El programa original asumía que solo se le entregaría una variable matemática simple (usualmente el tiempo) para descubrir derivadas directas.
+El programa asumía un bloque rígido de variables, generalmente limitado a observar cómo una característica $x$ variaba en el tiempo.
 
 **Modificación Actual:**
-Reescribimos la forma en que el sistema carga los datos. Ahora el sistema puede ingerir múltiples variables y "propiedades" al mismo tiempo. Por ejemplo, podemos alimentar al algoritmo con el número de orden cuántico ($L$), la posición angular ($x$), y polinomios matemáticos previos, todo en paralelo.
+Reescribimos la ingestión de datos en el archivo principal para que construya dinámicamente el vector espacial usando todos los nombres de array que dictemos por consola (`--vars`).
+
+```python
+# Código implementado en search.py
+ndformer.set_data(
+    Xv={var: data[var] for var in args.vars}, # Ej. args.vars = ['l_order', 'x', 'p_prev1']
+    ...
+)
+```
 
 **¿Por qué es importante?**
-Permite que la red neuronal analice sistemas de la vida real que dependen de muchos factores simultáneos, lo cual es obligatorio para encontrar ecuaciones como la ley de recurrencia de Legendre.
+Nos posibilitó alimentar ecuaciones recursivas. La inteligencia artificial pudo ver por primera vez en "una sola foto" el estado cuántico $L$, junto con su posición espacial y sus derivadas pasadas.
 
 ---
 
-### 2. Soporte para Relaciones de Distancia Espacial
+### 2. Soporte para Relaciones de Distancia Espacial (Aristas)
 
 **Estado Original:**
-Originalmente, el código ignoraba por diseño las "aristas" o conexiones entre diferentes puntos de datos, tratándolas simplemente como vacías o inexistentes.
+La topología subyacente del grafo (`Xe`) era ignorada e introducida explícitamente como "nula" o vacía.
 
 **Modificación Actual:**
-Habilitamos paramétricamente la carga de Atributos de Arista (Edge Features) en toda la arquitectura del programa.
+Habilitamos paramétricamente la carga de 'Edge Features' para que informen las conexiones entre los nodos físicos a la matriz de atención de la IA.
+
+```python
+# Código implementado en search.py
+rewarder = RewardSolver(
+    Xv={var: data[var] for var in args.vars},
+    Xe={var: data[var] for var in args.edge_vars}, # Permite mapear el radio r o vector distancia
+    ...
+)
+```
 
 **¿Por qué es importante?**
-Esto le enseñó al programa el concepto de "distancia". Es lo que permitió mapear explícitamente el radio ($r$) que separa dos cuerpos en el espacio. Sin esto, el motor sería ciego a la caída de las fuerzas físicas según se aleja la distancia.
+Le enseñó al programa el concepto dimensional de "distancia física" separándolo de los datos internos, vital para aislar la regla escalar del electromagnetismo $1/r^{l+1}$.
 
 ---
 
 ### 3. Visibilidad Total de Ecuaciones (Frente de Pareto)
 
 **Estado Original:**
-Al terminar de procesar durante horas, el programa originalmente imprimía únicamente una (`1`) ecuación ganadora, ocultando miles de ecuaciones intermedias.
+Al finalizar las iteraciones del árbol de Monte Carlo, el script base descartaba la historia de la búsqueda e imprimía solo al único "ganador" pre-calculado.
 
 **Modificación Actual:**
-Hackeamos la salida del programa para que imprima toda la lista ordenada de ecuaciones descubiertas (desde la más simple hasta la más absurdamente compleja). A esta lista se le conoce como el Frente de Pareto.
+Hackeamos la salida para extraer y organizar el diccionario completo de las mejores ecuaciones compitiendo por nivel de longitud.
+
+```python
+# Código implementado en search.py post-búsqueda
+print("==================== FRENTE DE PARETO ====================")
+front = est.Pareto() # Fuerzo extracción del historial estructural de Monte Carlo
+for eq in front:
+    print(f"Complex:{eq[1]} | R2:{eq[0]:.4f} | Eq: {GDExpr.prefix2str(eq[2])}")
+```
 
 **¿Por qué es importante?**
-Las máquinas a veces eligen fórmulas matemáticas muy largas que logran precisión "falsa" añadiendo constantes inútiles. Al ver toda la lista, nosotros como físicos pudimos detectar cuándo la máquina había encontrado correctamente nuestra Ley Cuadrupolar ($1/r^3$) aunque la máquina no la hubiera clasificado como la mejor opción absoluta.
+Las IA comúnmente encuentran modelos sobreajustados (fórmulas largas llenas de decimales innecesarios con R²=1.0). Obligarla a imprimir el frente de Pareto nos permitió (a los físicos) detectar la maravilla de la Ley Cuadrupolar exacta $1/r^3$ antes de que el motor la descartara en favor de una ecuación espuria.
 
 ---
 
-### 4. Corrección de Errores de Lectura Numérica
+### 4. Corrección de Errores de Lectura Numérica (Tuple Unpack Fix)
 
 **Estado Original:**
-Había un error silente en el núcleo matemático predictivo del programa. Cuando se evaluaban datasets físicos muy pesados, el sistema interno recibía una "caja de datos" (tuplas) en vez de un número simple, lo cual provocaba que la ejecución fallara o se "crasheara".
+El núcleo UCB1 de Monte Carlo tenía limitaciones de tipo variables. Ocasionalmente, los validadores retornaban tuplas o diccionarios complejos y la máquina esperaba un flotante, causando bloqueos aleatorios al evaluar ramas largas.
 
 **Modificación Actual:**
-Se reprogramó la función de desempaquetado de evaluaciones para garantizar que el motor estadístico reciba siempre el número exacto del puntaje.
+Impusimos el desempaquetado exacto que aísla solo la recompensa estocástica, descartando los rastros estructurales que estrangulaban a la capa recursiva.
+
+```python
+# Código implementado en la sincronización MCTS
+reward, _ = rewarder.evaluate(prefix_with_coef, {}) # Extracción forzada del score flotante
+# Reemplaza la fallida asignación directa que desencadenaba el error "dictionary cannot be float"
+```
 
 **¿Por qué es importante?**
-Evita que el programa colapse. Gracias a esto, hoy podemos dejar el motor buscando ecuaciones extremadamente exóticas durante toda la noche sin riesgo de interrupciones técnicas.
+Concurrió en la robustez pura. Resolvió el "crasheo" en maratones de entrenamiento y previno reinicios innecesarios en plena nube.
 
 ---
 
 ### 5. Control Quirúrgico de Amplitud de Exploración (Beam Size)
 
 **Estado Original:**
-Haciendo una analogía: El número de ecuaciones que la Inteligencia Artificial podía "mantener en su cabeza al mismo tiempo" estaba bloqueado a un número pequeño de fábrica.
+El grado de variables algebraicas que la inteligencia artificial procesaba a la vez ("imaginación" paralela) estaba congelado a un valor empírico predeterminado.
 
 **Modificación Actual:**
-Añadimos un comando para que el usuario pueda aumentar multiplicar a voluntad ese límite de "memoria imaginativa" paralela.
+Exposición de la variable en el entorno superior para dotar al operador heurístico de control sobre la anchura de las ramas.
+
+```python
+# Código implementado en search.py
+parser.add_argument('--beam_size', type=int, default=20) 
+
+# Transferido a MCTS setup
+est = MCTS(..., beam_size=args.beam_size)
+```
 
 **¿Por qué es importante?**
-Previene que el sistema se quede atascado intentando "mejorar" ecuaciones defectuosas simplemente añadiéndoles decimales (como probar $x * 2.0001$). Al ensanchar la búsqueda, el algoritmo puede descartar fórmulas malas a tiempo y saltar hacia una formulación matemática mucho más abstracta y correcta.
+En las fases elevadas (como `l=5` o inducciones largas), el tamaño por defecto resultaba en estancamiento dentro de mínimos locales. Aumentar drásticamente el `beam_size` facilitó un salto deductivo hacia una ramificación abstracta y matemáticamente elegante sin sobreajustarse.
