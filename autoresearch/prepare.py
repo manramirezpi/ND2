@@ -157,6 +157,35 @@ def generate_three_monopoles(T=500):
         edge_data={"d": d_edge}
     )
 
+def generate_four_monopoles(T=500):
+    """
+    4 Monopolos. Ley exacta: V = Q1/d1 + Q2/d2 + Q3/d3 + Q4/d4
+    Grafo: 5 nodos (4 monopolos + 1 observador), 4 aristas hacia el observador.
+    """
+    np.random.seed(42)
+    Qs = [np.random.uniform(0.5, 3.0, T) for _ in range(4)]
+    ds = [np.random.uniform(0.5, 5.0, T) for _ in range(4)]
+    V  = sum(q/d for q, d in zip(Qs, ds))
+
+    # Nodo features: shape (T, V=5) — [Q1, Q2, Q3, Q4, 0 (observador)]
+    Q_node = [[float(Qs[0][t]), float(Qs[1][t]), float(Qs[2][t]),
+               float(Qs[3][t]), 0.0] for t in range(T)]
+
+    # Edge features: shape (T, E=4) — [d1, d2, d3, d4]
+    d_edge = [[float(ds[0][t]), float(ds[1][t]),
+               float(ds[2][t]), float(ds[3][t])] for t in range(T)]
+
+    # Target: shape (T, V=5) — solo el observador (nodo 4)
+    targets = [[0.0, 0.0, 0.0, 0.0, float(v)] for v in V]
+
+    save_dataset(
+        {"Q": Q_node}, targets,
+        filename="data/four_monopoles.json",
+        A=[[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,1],[0,0,0,0,0]],
+        G=[[0,4],[1,4],[2,4],[3,4]],
+        edge_data={"d": d_edge}
+    )
+
 def generate_toy_math():
     """ Baseline dataset: Target = x^2 + 2x """
     np.random.seed(42)
@@ -201,7 +230,7 @@ def generate_legendre_recurrence():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="toy",
-                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", "three_monopoles"])
+                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", "three_monopoles", "four_monopoles"])
     args = parser.parse_args()
     
     if args.dataset == "toy":
@@ -216,3 +245,5 @@ if __name__ == "__main__":
         generate_two_monopoles()
     elif args.dataset == "three_monopoles":
         generate_three_monopoles()
+    elif args.dataset == "four_monopoles":
+        generate_four_monopoles()
