@@ -212,6 +212,39 @@ def generate_five_monopoles(T=500):
         edge_data={"d": d_edge}
     )
 
+def generate_ten_monopoles(T=500):
+    """
+    10 Monopolos. Escalabilidad máxima. Ley: V = sum(Qi/di) for i=1..10
+    Grafo: 11 nodos (10 fuente + 1 receptor), 10 aristas.
+    """
+    np.random.seed(42)
+    Qs = [np.random.uniform(0.5, 3.0, T) for _ in range(10)]
+    ds = [np.random.uniform(0.5, 5.0, T) for _ in range(10)]
+    V  = sum(q/d for q, d in zip(Qs, ds))
+
+    # Nodos: [Q1..Q10, 0]
+    Q_node = [[float(Qs[i][t]) for i in range(10)] + [0.0] for t in range(T)]
+    # Aristas: [d1..d10]
+    d_edge = [[float(ds[i][t]) for i in range(10)] for t in range(T)]
+    # Target solo en nodo 10 (el receptor)
+    targets = [[0.0]*10 + [float(v)] for v in V]
+
+    # Matriz A de 11x11, solo las 10 fuentes apuntan al nodo 10
+    A = np.zeros((11, 11), dtype=int)
+    for i in range(10): A[i, 10] = 1
+    
+    # Lista G de 10 aristas [fuente_i, receptor]
+    G = [[i, 10] for i in range(10)]
+
+    save_dataset(
+        {"Q": Q_node}, targets,
+        filename="data/ten_monopoles.json",
+        A=A.tolist(),
+        G=G,
+        edge_data={"d": d_edge}
+    )
+
+
 
 def generate_toy_math():
     """ Baseline dataset: Target = x^2 + 2x """
@@ -258,7 +291,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="toy",
                         choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", 
-                                 "three_monopoles", "four_monopoles", "five_monopoles"])
+                                 "three_monopoles", "four_monopoles", "five_monopoles", "ten_monopoles"])
     args = parser.parse_args()
     
     if args.dataset == "toy":
@@ -277,3 +310,5 @@ if __name__ == "__main__":
         generate_four_monopoles()
     elif args.dataset == "five_monopoles":
         generate_five_monopoles()
+    elif args.dataset == "ten_monopoles":
+        generate_ten_monopoles()
