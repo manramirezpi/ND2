@@ -186,6 +186,33 @@ def generate_four_monopoles(T=500):
         edge_data={"d": d_edge}
     )
 
+def generate_five_monopoles(T=500):
+    """
+    5 Monopolos. Ley exacta: V = sum(Qi/di) para i=1..5
+    Grafo: 6 nodos (5 fuente + 1 receptor), 5 aristas.
+    """
+    np.random.seed(42)
+    Qs = [np.random.uniform(0.5, 3.0, T) for _ in range(5)]
+    ds = [np.random.uniform(0.5, 5.0, T) for _ in range(5)]
+    V  = sum(q/d for q, d in zip(Qs, ds))
+
+    # [Q1, Q2, Q3, Q4, Q5, 0]
+    Q_node = [[float(Qs[i][t]) for i in range(5)] + [0.0] for t in range(T)]
+    # [d1, d2, d3, d4, d5]
+    d_edge = [[float(ds[i][t]) for i in range(5)] for t in range(T)]
+    # Solo el nodo 5
+    targets = [[0.0, 0.0, 0.0, 0.0, 0.0, float(v)] for v in V]
+
+    save_dataset(
+        {"Q": Q_node}, targets,
+        filename="data/five_monopoles.json",
+        A=[[0,0,0,0,0,1],[0,0,0,0,0,1],[0,0,0,0,0,1],
+           [0,0,0,0,0,1],[0,0,0,0,0,1],[0,0,0,0,0,0]],
+        G=[[0,5],[1,5],[2,5],[3,5],[4,5]],
+        edge_data={"d": d_edge}
+    )
+
+
 def generate_toy_math():
     """ Baseline dataset: Target = x^2 + 2x """
     np.random.seed(42)
@@ -230,7 +257,8 @@ def generate_legendre_recurrence():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="toy",
-                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", "three_monopoles", "four_monopoles"])
+                        choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", 
+                                 "three_monopoles", "four_monopoles", "five_monopoles"])
     args = parser.parse_args()
     
     if args.dataset == "toy":
@@ -247,3 +275,5 @@ if __name__ == "__main__":
         generate_three_monopoles()
     elif args.dataset == "four_monopoles":
         generate_four_monopoles()
+    elif args.dataset == "five_monopoles":
+        generate_five_monopoles()
