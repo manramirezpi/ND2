@@ -30,6 +30,11 @@ def main(args):
     data['A'] = data['A'].astype(int)
     data['G'] = data['G'].astype(int)
 
+    # Log Transformation support
+    if args.log_target:
+        logger.info(f"Target variable '{args.target_var}' is being transformed to Log-space (ln|y|+eps)")
+        data[args.target_var] = np.log(np.abs(data[args.target_var]) + 1e-15)
+
     # init Rewarder
     rewarder = RewardSolver(
         Xv={var: data[var] for var in args.vars},
@@ -54,12 +59,21 @@ def main(args):
         cache_data_emb=True,
     )
 
+    # Operator Pruning
+    default_unary = ['neg', 'abs', 'inv', 'exp', 'logabs', 'sin', 'cos', 'tan', 
+                     'sqrtabs', 'pow2', 'pow3', 'tanh', 'sigmoid', 'aggr', 'sour', 'targ']
+    pruned_unary = [op for op in default_unary if op not in args.prune_ops]
+    if len(pruned_unary) != len(default_unary):
+        removed = set(default_unary) - set(pruned_unary)
+        logger.info(f"Pruned operators: {removed}")
+
     # init Monte-Carlo Tree Search algorithm
     est = MCTS(
         rewarder=rewarder,
         ndformer=ndformer,
         vars_node=args.vars,
         vars_edge=args.edge_vars,
+        unary=pruned_unary,  # Pass the pruned list
         log_per_episode=10,
         log_per_second=None,
         beam_size=args.beam_size,
@@ -121,6 +135,9 @@ if __name__ == '__main__':
     parser.add_argument('--beam_size', type=int, default=20)
     parser.add_argument('--time_limit', type=int, default=None)
     parser.add_argument('--initial_expression', type=str, default=None, help='Initial symbolic expression to seed MCTS')
+    parser.add_argument('--log_target', action='store_true', help='Apply log-transformation to target variable')
+    parser.add_argument('--prune_ops', type=str, nargs='*', default=['sigmoid', 'logabs', 'abs'], 
+                        help='Operators to remove from the vocabulary')
     
     args, unknown = parser.parse_known_args()
     if unknown: 
