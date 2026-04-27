@@ -78,7 +78,8 @@ def main(args):
         log_per_second=None,
         beam_size=args.beam_size,
         use_random_simulate=False,
-        max_coeff_num=5,
+        max_token_num=args.max_complexity,  # New: limit nested complexity
+        max_coeff_num=args.max_coeff,       # New: limit number of constants
     )
 
     # seed
@@ -138,6 +139,8 @@ if __name__ == '__main__':
     parser.add_argument('--log_target', action='store_true', help='Apply log-transformation to target variable')
     parser.add_argument('--prune_ops', type=str, nargs='*', default=['sigmoid', 'logabs', 'abs'], 
                         help='Operators to remove from the vocabulary')
+    parser.add_argument('--max_complexity', type=int, default=30, help='Maximum number of tokens in the expression')
+    parser.add_argument('--max_coeff', type=int, default=5, help='Maximum number of learnable coefficients <C>')
     
     args, unknown = parser.parse_known_args()
     if unknown: 
