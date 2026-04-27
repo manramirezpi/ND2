@@ -244,6 +244,60 @@ def generate_ten_monopoles(T=500):
         edge_data={"d": d_edge}
     )
 
+def generate_multipole_fields(l=1, T=1000, Q=1.0):
+    """
+    Genera V, Er y Etheta para un multipolo de orden l.
+    Ideal para descubrir las leyes de decaimiento 1/r^(l+1) y 1/r^(l+2).
+    """
+    np.random.seed(42)
+    r = np.random.uniform(0.5, 5.0, T)
+    theta = np.random.uniform(0.01, np.pi - 0.01, T)
+    cos_theta = np.cos(theta)
+    
+    # Expresiones analíticas
+    from scipy.special import legendre as scipy_legendre
+    Pl = scipy_legendre(l)
+    
+    # V = Q * Pl(cos_theta) / r^(l+1)
+    V = Q * Pl(cos_theta) / r**(l + 1)
+    
+    # Er = (l+1) * Q * Pl(cos_theta) / r^(l+2)
+    Er = (l + 1) * Q * Pl(cos_theta) / r**(l + 2)
+    
+    # Etheta = Q * dPl_dtheta * sin(theta) / r^(l+2)
+    # dPl/dtheta = -sin(theta) * dPl/dcos(theta)
+    eps = 1e-6
+    dPl_dcos = (Pl(cos_theta + eps) - Pl(cos_theta - eps)) / (2 * eps)
+    Etheta = Q * (-np.sin(theta) * dPl_dcos) / r**(l + 2)
+
+    # Nodo features: [r, cos_theta]
+    data_node = {
+        "r": [[float(rv), float(cv)] for rv, cv in zip(r, cos_theta)]
+    }
+    
+    # Multi-target: Creamos tres archivos o uno con múltiples columnas?
+    # ND2 prefiere un target por ejecución. Generamos tres targets en el JSON.
+    targets = {
+        "V": [[float(v)] for v in V],
+        "Er": [[float(er)] for er in Er],
+        "Etheta": [[float(et)] for et in Etheta]
+    }
+    
+    # Guardamos como un dataset estándar (V=1, E=1 para simplicidad de nodo único)
+    dataset = {
+        "V": 1, "E": 1, "A": [[0]], "G": [[0,0]],
+        "r": [[float(rv)] for rv in r],
+        "cos_theta": [[float(cv)] for cv in cos_theta],
+        "target_V": [[float(v)] for v in V],
+        "target_Er": [[float(er)] for er in Er],
+        "target_Etheta": [[float(et)] for et in Etheta]
+    }
+    
+    filename = f"data/multipole_l{l}.json"
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    with open(filename, "w") as f:
+        json.dump(dataset, f)
+    print(f"[OK] Generated: {filename} with targets: target_V, target_Er, target_Etheta")
 
 
 def generate_toy_math():
@@ -291,7 +345,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", type=str, default="toy",
                         choices=["toy", "harmonic", "legendre", "monopole", "two_monopoles", 
-                                 "three_monopoles", "four_monopoles", "five_monopoles", "ten_monopoles"])
+                                 "three_monopoles", "four_monopoles", "five_monopoles", "ten_monopoles",
+                                 "multipole_fields"])
+    parser.add_argument("--l", type=int, default=1, help="Orden multipolar (l)")
+    parser.add_argument("--T", type=int, default=1000, help="Número de muestras")
     args = parser.parse_args()
     
     if args.dataset == "toy":
@@ -312,3 +369,5 @@ if __name__ == "__main__":
         generate_five_monopoles()
     elif args.dataset == "ten_monopoles":
         generate_ten_monopoles()
+    elif args.dataset == "multipole_fields":
+        generate_multipole_fields(l=args.l, T=args.T)
