@@ -288,6 +288,7 @@ def generate_multipole_fields(l=1, T=1000, Q=1.0):
         "V": 1, "E": 1, "A": [[0]], "G": [[0,0]],
         "r": [[float(rv)] for rv in r],
         "cos_theta": [[float(cv)] for cv in cos_theta],
+        "sin_theta": [[float(sv)] for sv in np.sin(theta)],
         "target_V": [[float(v)] for v in V],
         "target_Er": [[float(er)] for er in Er],
         "target_Etheta": [[float(et)] for et in Etheta]
